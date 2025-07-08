@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.front.mapper.CourseOrderMapper">
+    <resultMap id="courseOrderResult" type="com.front.pojo.CourseOrder">
+        <id column="id" property="id"></id>
+        <result property="orderNo" column="order_no"></result>
+        <result property="courseId" column="course_id"></result>
+        <result property="userId" column="user_id"></result>
+        <result property="payMethod" column="pay_method"></result>
+        <result property="status" column="status"></result>
+        <result property="createdAt" column="created_at"></result>
+        <result property="paidAt" column="paid_at"></result>
+    </resultMap>
+
+    <select id="countByCourseAndUser" resultType="int">
+        SELECT COUNT(*) FROM course_order WHERE course_id = #{courseId} AND user_id = #{userId}
+    </select>
+
+    <insert id="insertOrder" parameterType="com.front.pojo.CourseOrder">
+        INSERT INTO course_order (order_no, course_id, user_id, created_at)
+        VALUES (#{orderNo}, #{courseId}, #{userId}, NOW())
+    </insert>
+
+    <update id="confirmPayment" parameterType="com.front.pojo.CourseOrder">
+        UPDATE course_order
+        SET status = '已支付',
+        pay_method = #{method},
+        paid_at = NOW()
+        WHERE order_no = #{orderNo}
+    </update>
+
+
+    <select id="countOrders" resultType="int">
+        SELECT COUNT(*) FROM course_order o
+        LEFT JOIN users u ON o.user_id = u.user_id
+        LEFT JOIN course c ON o.course_id = c.id
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.username LIKE CONCAT('%', #{keyword}, '%') OR
+            c.name LIKE CONCAT('%', #{keyword}, '%') OR
+            o.order_no LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND o.status = #{status}
+        </if>
+    </select>
+
+    <select id="getOrdersByPage" resultMap="courseOrderResult">
+        SELECT
+        o.*, u.username, c.name AS courseName
+        FROM course_order o
+        LEFT JOIN users u ON o.user_id = u.user_id
+        LEFT JOIN course c ON o.course_id = c.id
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.username LIKE CONCAT('%', #{keyword}, '%') OR
+            c.name LIKE CONCAT('%', #{keyword}, '%') OR
+            o.order_no LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND o.status = #{status}
+        </if>
+        ORDER BY o.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

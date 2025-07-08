@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.front.mapper.CourseMapper">
+
+    <!-- 课程详情 / 编辑页面用：Course + CourseMore -->
+    <resultMap id="CourseWithMoreMap" type="com.front.pojo.Course">
+        <id column="id" property="id"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="name" property="name"/>
+        <result column="tags" property="tags"/>
+        <result column="intro" property="intro"/>
+        <result column="target_user" property="targetUser"/>
+        <result column="recommendation" property="recommendation"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+
+        <association property="courseMore" javaType="com.front.pojo.CourseMore">
+            <id column="more_id" property="id"/>
+            <result column="course_id" property="courseId"/>
+            <result column="image" property="image"/>
+            <result column="price" property="price"/>
+            <result column="discount" property="discount"/>
+        </association>
+    </resultMap>
+
+    <!-- 课程列表页使用：Course + 分类 + 讲师 -->
+    <resultMap id="CourseViewMap" type="com.front.pojo.CourseView">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="tags" column="tags"/>
+        <result property="intro" column="intro"/>
+        <result property="createTime" column="created_at"/>
+        <result property="updateTime" column="updated_at"/>
+        <result property="price" column="price"/>
+        <result property="discount" column="discount"/>
+        <result property="image" column="image"/>
+        <result property="targetUser" column="target_user"/>
+        <result property="recommendation" column="recommendation"/>
+        <result property="teacherNames" column="teacherNames"/>
+        <result property="fullCategoryPath" column="fullCategoryPath"/>
+        <result property="category1" column="category1"/>
+        <result property="category2" column="category2"/>
+        <result property="category3" column="category3"/>
+    </resultMap>
+
+    <!-- ===================== 查询语句定义 ===================== -->
+
+    <!-- 搜索课程关键词（课程详情用） -->
+    <select id="searchCoursesByKeyword" resultMap="CourseWithMoreMap">
+        SELECT c.*, m.id AS more_id, m.course_id, m.image, m.price, m.discount
+        FROM course c
+                 LEFT JOIN course_more m ON c.id = m.course_id
+        WHERE c.name LIKE CONCAT('%', #{keyword}, '%')
+           OR c.tags LIKE CONCAT('%', #{keyword}, '%')
+           OR c.intro LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+    <!-- 通过分类 ID 查询课程（课程详情用） -->
+    <select id="findByCategoryId" resultMap="CourseWithMoreMap">
+        SELECT c.*, m.id AS more_id, m.course_id, m.image, m.price, m.discount
+        FROM course c
+                 LEFT JOIN course_more m ON c.id = m.course_id
+        WHERE c.category_id = #{categoryId}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <!-- 一次查出多个分类下的课程 -->
+    <select id="findByCategoryIds" resultMap="CourseWithMoreMap">
+        SELECT * FROM course WHERE category_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据父分类查询子分类下课程 -->
+    <select id="findCoursesByParentCategoryId" resultType="com.front.pojo.Course">
+        SELECT c.*
+        FROM course c
+                 JOIN course_category cc ON c.category_id = cc.id
+        WHERE cc.parent_id = #{parentId}
+    </select>
+
+    <!-- 查询单个课程详情 -->
+    <select id="findCourseById" resultMap="CourseWithMoreMap">
+        SELECT * FROM course WHERE id = #{id}
+    </select>
+
+    <!-- 查询课程详细信息（course_more） -->
+    <select id="findCourseMoreByCourseId" resultType="com.front.pojo.CourseMore">
+        SELECT * FROM course_more WHERE course_id = #{courseId}
+    </select>
+
+    <!-- 查询课程关联讲师 -->
+    <select id="findTeachersByCourseId" resultType="com.front.pojo.Teacher">
+        SELECT t.*
+        FROM teacher t
+                 INNER JOIN course_teacher ct ON t.id = ct.teacher_id
+        WHERE ct.course_id = #{courseId}
+    </select>
+
+    <!-- 查询课程总数量（用于分页） -->
+    <select id="countCourses" resultType="int">
+        SELECT COUNT(*) FROM course
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%')
+            OR tags LIKE CONCAT('%', #{keyword}, '%')
+            OR intro LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <!-- 分页查询课程列表（课程管理页面） -->
+    <select id="getCourseList" resultMap="CourseViewMap">
+        SELECT
+        c.id,
+        c.name,
+        c.tags,
+        c.intro,
+        c.created_at,
+        ANY_VALUE(cm.price) AS price,
+        ANY_VALUE(cm.discount) AS discount,
+        ANY_VALUE(cm.image) AS image,
+        GROUP_CONCAT(DISTINCT t.name SEPARATOR ',') AS teacherNames,
+        ANY_VALUE(cat1.name) AS category1,
+        ANY_VALUE(cat2.name) AS category2,
+        ANY_VALUE(cat3.name) AS category3
+        FROM course c
+        LEFT JOIN course_more cm ON c.id = cm.course_id
+        LEFT JOIN course_category cat3 ON c.category_id = cat3.id
+        LEFT JOIN course_category cat2 ON cat3.parent_id = cat2.id
+        LEFT JOIN course_category cat1 ON cat2.parent_id = cat1.id
+        LEFT JOIN course_teacher ct ON c.id = ct.course_id
+        LEFT JOIN teacher t ON ct.teacher_id = t.id
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            c.name LIKE CONCAT('%', #{keyword}, '%')
+            OR c.tags LIKE CONCAT('%', #{keyword}, '%')
+            OR c.intro LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        GROUP BY c.id
+        ORDER BY c.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 查询课程详情（包括课程、课程扩展信息、分类路径、讲师）-->
+    <select id="findCourseViewById" resultMap="CourseViewMap">
+        SELECT
+            c.id,
+            c.name,
+            c.tags,
+            c.intro,
+            c.created_at,
+            c.updated_at,
+            c.target_user,
+            c.recommendation,
+            ANY_VALUE(cm.image) AS image,
+            ANY_VALUE(cm.price) AS price,
+            ANY_VALUE(cm.discount) AS discount,
+            GROUP_CONCAT(DISTINCT t.name SEPARATOR ',') AS teacherNames,
+            CONCAT_WS('/',
+                      IFNULL(cat1.name, ''),
+                      IFNULL(cat2.name, ''),
+                      IFNULL(cat3.name, '')
+            ) AS fullCategoryPath
+        FROM course c
+                 LEFT JOIN course_more cm ON c.id = cm.course_id
+                 LEFT JOIN course_category cat3 ON c.category_id = cat3.id
+                 LEFT JOIN course_category cat2 ON cat3.parent_id = cat2.id
+                 LEFT JOIN course_category cat1 ON cat2.parent_id = cat1.id
+                 LEFT JOIN course_teacher ct ON c.id = ct.course_id
+                 LEFT JOIN teacher t ON ct.teacher_id = t.id
+        WHERE c.id = #{id}
+        GROUP BY c.id
+    </select>
+
+    <select id="selectCourseById" resultType="com.front.pojo.Course">
+        SELECT * FROM course WHERE id = #{id}
+    </select>
+
+    <select id="selectTeacherIdsByCourseId" parameterType="int" resultType="int">
+        SELECT teacher_id FROM course_teacher WHERE course_id = #{courseId}
+    </select>
+
+    <insert id="insertCourse" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course (name, category_id, tags, target_user, recommendation, image, price, discount)
+        VALUES (#{name}, #{categoryId}, #{tags}, #{targetUser}, #{recommendation}, #{image}, #{price}, #{discount})
+    </insert>
+
+    <update id="updateCourse">
+        UPDATE course
+        SET name = #{name}, category_id = #{categoryId}, tags = #{tags},
+            target_user = #{targetUser}, recommendation = #{recommendation},
+            image = #{image}, price = #{price}, discount = #{discount}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteCourseTeachersByCourseId" parameterType="int">
+        DELETE FROM course_teacher WHERE course_id = #{courseId}
+    </delete>
+
+    <insert id="insertCourseTeachers" parameterType="map">
+        INSERT INTO course_teacher (course_id, teacher_id)
+        <foreach collection="teacherIds" item="teacherId" separator=",">
+            (#{courseId}, #{teacherId})
+        </foreach>
+    </insert>
+
+    <update id="updateCourseMore" parameterType="com.example.bean.CourseBean">
+        UPDATE course_more SET
+                               image = #{image},
+                               price = #{price},
+                               discount = #{discount}
+        WHERE course_id = #{id}
+    </update>
+
+
+</mapper>

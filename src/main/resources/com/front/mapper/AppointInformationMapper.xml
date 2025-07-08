@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.front.mapper.AppointInformationMapper">
+    <resultMap id="AppointInfoMap" type="com.front.pojo.AppointInformation">
+        <id column="id" property="id"/>
+        <result column="appointment_id" property="appointmentId"/>
+        <result column="name" property="name"/>
+        <result column="phone" property="phone"/>
+        <result column="time" property="time"/>
+        <result column="city" property="city"/>
+        <result column="industry" property="industry"/>
+        <result column="experience" property="experience"/>
+        <result column="paid_consult" property="paidConsult"/>
+        <result column="description" property="description"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <insert id="insertAppointInformation">
+        INSERT INTO appoint_information
+        (`id`, `appointment_id`, `name`, `phone`, `time`, `city`, `industry`, `experience`, `paid_consult`, `description`, `created_at`, `updated_at`, `status`)
+        VALUES
+        (#{id}, #{appointmentId}, #{name}, #{phone},#{time}, #{city}, #{industry}, #{experience}, #{paidConsult}, #{description}, #{createdAt}, #{updatedAt}, #{status})
+    </insert>
+
+    <select id="countByKeyword" resultType="int">
+        SELECT COUNT(*) FROM appoint_information
+        <where>
+            <if test="keyword != null and keyword != ''">
+                (name LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="getByKeywordWithPage" resultMap="AppointInfoMap">
+        SELECT * FROM appoint_information
+        <where>
+            <if test="keyword != null and keyword != ''">
+                (name LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+
+</mapper>

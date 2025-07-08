@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.front.mapper.AIChatMessageMapper">
+    <resultMap id="courseOrderResult" type="com.front.pojo.AIChatMessage">
+        <id column="id" property="id"></id>
+        <result property="userId" column="user_id"></result>
+        <result property="role" column="role"></result>
+        <result property="message" column="message"></result>
+        <result property="timestamp" column="timestamp"></result>
+    </resultMap>
+
+    <select id="getMessagesByUserId" resultType="com.front.pojo.AIChatMessage">
+        SELECT * FROM ai_chat_history WHERE user_id = #{userId} ORDER BY timestamp ASC
+    </select>
+
+    <insert id="insertMessage">
+        INSERT INTO ai_chat_history (user_id, role, message, timestamp)
+        VALUES (#{userId}, #{role}, #{message}, NOW())
+    </insert>
+
+    <select id="getRecentMessages" resultType="com.front.pojo.AIChatMessage">
+        SELECT *
+        FROM ai_chat_history
+        WHERE user_id = #{userId}
+        ORDER BY timestamp DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

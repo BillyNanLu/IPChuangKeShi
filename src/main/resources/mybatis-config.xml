@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="db.properties"/>
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${mysql.driver}"/>
+                <property name="url" value="${mysql.url}"/>
+                <property name="username" value="${mysql.username}"/>
+                <property name="password" value="${mysql.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper class="com.front.mapper.UserMapper"/>
+        <mapper class="com.front.mapper.AppointConsultMapper"/>
+
+        <mapper class="com.front.mapper.CourseMapper"/>
+        <mapper class="com.front.mapper.CourseCategoryMapper"/>
+        <mapper class="com.front.mapper.CourseOrderMapper"/>
+        <mapper class="com.front.mapper.TeacherMapper"/>
+
+        <mapper class="com.front.mapper.AIChatMessageMapper"/>
+
+        <mapper class="com.front.mapper.AppointInformationMapper"/>
+
+        <mapper class="com.front.mapper.AdminDashboardMapper"/>
+        <mapper class="com.front.mapper.AiChatMapper"/>
+
+    </mappers>
+
+</configuration>
