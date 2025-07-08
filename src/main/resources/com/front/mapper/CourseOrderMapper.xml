@@ -12,6 +12,10 @@
         <result property="status" column="status"></result>
         <result property="createdAt" column="created_at"></result>
         <result property="paidAt" column="paid_at"></result>
+
+        <result property="userName" column="user_name"></result>
+        <result property="courseName" column="course_name"></result>
+
     </resultMap>
 
     <select id="countByCourseAndUser" resultType="int">
@@ -68,6 +72,13 @@
         </if>
         ORDER BY o.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="listByUserId" parameterType="int" resultMap="courseOrderResult">
+        SELECT co.*, c.name as course_name, u.username as user_name FROM course_order co
+        left join course c on co.course_id = c.id
+        join users u on u.user_id = co.user_id
+        WHERE co.user_id = #{userId}
     </select>
 
 </mapper>

@@ -21,4 +21,6 @@ public interface CourseOrderMapper {
                                       @Param("status") String status,
                                       @Param("offset") int offset,
                                       @Param("limit") int limit);
+
+    List<CourseOrder> listByUserId(@Param("userId") Integer userId);
 }

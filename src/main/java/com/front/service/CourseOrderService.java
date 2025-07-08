@@ -46,4 +46,12 @@ public class CourseOrderService {
                     .getOrdersByPage(keyword, status, offset, pageSize);
         }
     }
+
+    public List<CourseOrder> listByUserId(Integer userId) {
+        try (SqlSession sqlSession = MybatisUtil.getSession()) {
+            CourseOrderMapper orderMapper = sqlSession.getMapper(CourseOrderMapper.class);
+            List<CourseOrder> orderBeanList = orderMapper.listByUserId(userId);
+            return orderBeanList;
+        }
+    }
 }

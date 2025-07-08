@@ -10,13 +10,13 @@ public class Teacher {
     private String expertise;
     private String profile;
     private String imgage;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime createdTime;
+    private LocalDateTime updatedTime;
 
     public Teacher() {
     }
 
-    public Teacher(Integer id, String name, String title, String department, String expertise, String profile, String imgage, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Teacher(Integer id, String name, String title, String department, String expertise, String profile, String imgage, LocalDateTime createdTime, LocalDateTime updatedTime) {
         this.id = id;
         this.name = name;
         this.title = title;
@@ -24,8 +24,8 @@ public class Teacher {
         this.expertise = expertise;
         this.profile = profile;
         this.imgage = imgage;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.createdTime = createdTime;
+        this.updatedTime = updatedTime;
     }
 
     /**
@@ -144,35 +144,35 @@ public class Teacher {
      * 获取
      * @return createdAt
      */
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getCreatedTime() {
+        return createdTime;
     }
 
     /**
      * 设置
-     * @param createdAt
+     * @param createdTime
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedTime(LocalDateTime createdTime) {
+        this.createdTime = createdTime;
     }
 
     /**
      * 获取
-     * @return updatedAt
+     * @return updatedTime
      */
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+    public LocalDateTime getUpdatedTime() {
+        return updatedTime;
     }
 
     /**
      * 设置
-     * @param updatedAt
+     * @param updatedTime
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedTime(LocalDateTime updatedTime) {
+        this.updatedTime = updatedTime;
     }
 
     public String toString() {
-        return "Teacher{id = " + id + ", name = " + name + ", title = " + title + ", department = " + department + ", expertise = " + expertise + ", profile = " + profile + ", imgage = " + imgage + ", createdAt = " + createdAt + ", updatedAt = " + updatedAt + "}";
+        return "Teacher{id = " + id + ", name = " + name + ", title = " + title + ", department = " + department + ", expertise = " + expertise + ", profile = " + profile + ", imgage = " + imgage + ", createdTime = " + createdTime + ", , createdTime = " + createdTime + "}";
     }
 }

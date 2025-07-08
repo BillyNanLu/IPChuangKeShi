@@ -210,7 +210,7 @@
         </foreach>
     </insert>
 
-    <update id="updateCourseMore" parameterType="com.example.bean.CourseBean">
+    <update id="updateCourseMore" parameterType="com.front.pojo.Course">
         UPDATE course_more SET
                                image = #{image},
                                price = #{price},

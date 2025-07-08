@@ -88,7 +88,7 @@
                         <a href="adminDashboard" class="text-gray-700 hover:text-primary transition-colors font-medium">工作台</a>
                     </c:when>
                     <c:otherwise>
-                        <a href="myProfile" class="text-gray-700 hover:text-primary transition-colors font-medium">个人中心</a>
+                        <a href="personCenter" class="text-gray-700 hover:text-primary transition-colors font-medium">个人中心</a>
                     </c:otherwise>
                 </c:choose>
             </nav>

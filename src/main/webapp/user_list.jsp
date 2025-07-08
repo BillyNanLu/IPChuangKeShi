@@ -72,8 +72,9 @@
         <td class="p-3">${u.email}</td>
         <td class="p-3">
           <form action="userToggleStatus" method="post" style="display:inline;">
-            <input type="hidden" name="user_id" value="${u.user_id}" />
-            <button class="px-2 py-1 rounded text-white ${u.status == 1 ? 'bg-green-500' : 'bg-gray-400'} hover:opacity-80">
+            <input type="hidden" name="user_id" value="${u.userId}" />
+            <button type="submit"
+                    class="px-2 py-1 rounded text-white ${u.status == 1 ? 'bg-green-500' : 'bg-gray-400'} hover:opacity-80">
                 ${u.status == 1 ? '启用' : '禁用'}
             </button>
           </form>
@@ -81,23 +82,23 @@
         <td class="p-3 space-x-2">
           <button type="button" class="text-indigo-600 hover:underline"
                   onclick="showUserDetail(
-                    ${u.user_id},
+                    ${u.userId},
                           '${fn:escapeXml(u.username)}',
                           '${u.gender}',
                           '${u.phone}',
                           '${u.email}',
                     ${u.status},
-                    ${u.role_id},
-                          '${u.created_at}',
-                          '${u.updated_at}',
-                          '${u.last_login}',
+                    ${u.userId},
+                          '${u.createdAt}',
+                          '${u.updatedAt}',
+                          '${u.lastLogin}',
                           '${u.avatar}'
                           )">
             查看
           </button>
-          <a href="userEdit?id=${u.user_id}" class="text-blue-600 hover:underline">编辑</a>
+          <a href="userEdit?id=${u.userId}" class="text-blue-600 hover:underline">编辑</a>
           <form action="userDelete" method="post" style="display:inline;" onsubmit="return confirm('确定删除该用户？');">
-            <input type="hidden" name="user_id" value="${u.user_id}" />
+            <input type="hidden" name="user_id" value="${u.userId}" />
             <button type="submit" class="text-red-600 hover:underline">删除</button>
           </form>
         </td>

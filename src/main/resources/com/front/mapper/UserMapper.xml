@@ -30,5 +30,106 @@
         WHERE user_id = #{userId}
     </update>
 
+    <select id="searchUsers" resultMap="userResult">
+        SELECT *
+        FROM users
+        WHERE role_id IN (3, 4)
+        <if test="keyword != null and keyword != ''">
+            AND (username LIKE #{keyword}
+            OR phone LIKE #{keyword}
+            OR email LIKE #{keyword})
+        </if>
+        ORDER BY created_at ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*) FROM users
+        WHERE role_id IN (3, 4)
+        <if test="keyword != null and keyword != ''">
+            AND (username LIKE #{keyword}
+            OR phone LIKE #{keyword}
+            OR email LIKE #{keyword})
+        </if>
+    </select>
+
+    <update id="toggleUserStatus">
+        UPDATE users
+        SET status = CASE WHEN status = 1 THEN 0 ELSE 1 END
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getUserById" resultMap="userResult">
+        SELECT * FROM users WHERE user_id = #{id}
+    </select>
+
+    <update id="updateUser" parameterType="com.front.pojo.User">
+        UPDATE users
+        SET
+        username = #{username},
+        gender = #{gender},
+        phone = #{phone},
+        password = #{password},
+        email = #{email},
+        avatar = #{avatar},
+        role_id = #{roleId},
+        updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <insert id="insertUser" parameterType="com.front.pojo.User">
+        INSERT INTO users (
+        username, gender, phone, password, email, avatar,
+        status, role_id, created_at, updated_at
+        ) VALUES (
+        #{username}, #{gender}, #{phone}, #{password}, #{email}, #{avatar},
+        #{status}, #{roleId}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM users WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 根据角色查询管理员 -->
+    <select id="findByRoleId" resultType="com.front.pojo.User">
+        SELECT * FROM users
+        WHERE role_id = #{roleId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据角色+关键词模糊查询（用户名、电话、邮箱） -->
+    <select id="findAdminsByRoleAndKeyword" resultType="com.front.pojo.User">
+        SELECT * FROM users
+        WHERE role_id = #{roleId}
+        AND (
+        username LIKE #{keyword}
+        OR phone LIKE #{keyword}
+        OR email LIKE #{keyword}
+        )
+        ORDER BY created_at DESC
+    </select>
+
+
+
+    <insert id="insert">
+        insert into users(username, password, gender, phone, email, avatar, role_id)
+        values(#{username},#{password},#{gender},#{phone},#{email},#{avatar},#{roleId})
+    </insert>
+
+    <update id="updateProfile">
+        update users
+        <set>
+            username=#{username}, gender=#{gender}, email=#{email}, phone=#{phone},
+            <if test="avatar != null"> avatar = #{avatar},</if>
+        </set>
+        where user_id = #{user_id}
+    </update>
+
+    <select id="get" resultType="com.front.pojo.User">
+        select * from users where user_id = #{userId}
+    </select>
+
+
 
 </mapper>
