@@ -28,7 +28,7 @@ IPChuangKeShi/
 
 │  │    └── JS/    # 页面动态样式
 
-│  └── test/        # 单元测试（如有）
+│  └── test/        # 单元测试
 
 ├── pom.xml         # Maven 依赖配置文件
 
